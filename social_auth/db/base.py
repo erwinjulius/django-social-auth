@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 from openid.association import Association as OIDAssociation
 
+
 # django.contrib.auth and mongoengine.django.auth regex to validate usernames
 # '^[\w@.+-_]+$', we use the opposite to clean invalid characters
 CLEAN_USERNAME_REGEX = re.compile(r'[^\w.@+-_]+', re.UNICODE)
@@ -32,6 +33,17 @@ class UserSocialAuthMixin(object):
             return backend.AUTH_BACKEND.tokens(self)
         else:
             return {}
+
+    def revoke_token(self, drop_token=True):
+        """Attempts to revoke permissions for provider."""
+        if 'access_token' in self.tokens:
+            success = self.get_backend().revoke_token(
+                self.tokens['access_token'],
+                self.uid
+            )
+            if success and drop_token:
+                self.extra_data.pop('access_token', None)
+                self.save()
 
     def refresh_token(self):
         data = self.extra_data

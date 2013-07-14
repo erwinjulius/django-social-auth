@@ -73,6 +73,8 @@ class FacebookAuth(BaseOAuth2):
     RESPONSE_TYPE = None
     SCOPE_SEPARATOR = ','
     AUTHORIZATION_URL = 'https://www.facebook.com/dialog/oauth'
+    REVOKE_TOKEN_URL = 'https://graph.facebook.com//{uid}/permissions'
+    REVOKE_TOKEN_METHOD = 'DELETE'
     ACCESS_TOKEN_URL = ACCESS_TOKEN
     SETTINGS_KEY_NAME = 'FACEBOOK_APP_ID'
     SETTINGS_SECRET_NAME = 'FACEBOOK_API_SECRET'
@@ -201,6 +203,14 @@ class FacebookAuth(BaseOAuth2):
         """Return backend enabled status by checking basic settings"""
         return backend_setting(cls, cls.SETTINGS_KEY_NAME) and\
                backend_setting(cls, cls.SETTINGS_SECRET_NAME)
+
+    @classmethod
+    def revoke_token_params(cls, token, uid):
+        return {'access_token': token}
+
+    @classmethod
+    def process_revoke_token_response(cls, response):
+        return response.code == 200 and response.read() == 'true'
 
 
 def base64_url_decode(data):

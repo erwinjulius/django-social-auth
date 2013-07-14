@@ -191,6 +191,8 @@ class GoogleOAuth2(BaseOAuth2):
     AUTH_BACKEND = GoogleOAuth2Backend
     AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/auth'
     ACCESS_TOKEN_URL = 'https://accounts.google.com/o/oauth2/token'
+    REVOKE_TOKEN_URL = 'https://accounts.google.com/o/oauth2/revoke'
+    REVOKE_TOKEN_METHOD = 'GET'
     SETTINGS_KEY_NAME = _OAUTH2_KEY_NAME
     SETTINGS_SECRET_NAME = 'GOOGLE_OAUTH2_CLIENT_SECRET'
     SCOPE_VAR_NAME = 'GOOGLE_OAUTH_EXTRA_SCOPE'
@@ -200,6 +202,14 @@ class GoogleOAuth2(BaseOAuth2):
     def user_data(self, access_token, *args, **kwargs):
         """Return user data from Google API"""
         return googleapis_profile(GOOGLEAPIS_PROFILE, access_token)
+
+    @classmethod
+    def revoke_token_params(cls, token, uid):
+        return {'token': token}
+
+    @classmethod
+    def revoke_token_headers(cls, token, uid):
+        return {'Content-type': 'application/json'}
 
 
 def googleapis_email(url, params):
